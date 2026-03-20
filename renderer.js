@@ -320,3 +320,4 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('registration');
 });
 // Match Status Persistence
+// Real-time Scoring
