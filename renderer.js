@@ -322,3 +322,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // Match Status Persistence
 // Real-time Scoring
 // Demo Data Loader
+// Bug Fix: Sync
