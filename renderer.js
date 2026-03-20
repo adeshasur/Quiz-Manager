@@ -323,3 +323,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // Real-time Scoring
 // Demo Data Loader
 // Bug Fix: Sync
+// Bug Fix: Bracket
