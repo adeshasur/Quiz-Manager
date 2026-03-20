@@ -325,3 +325,4 @@ document.addEventListener('DOMContentLoaded', () => {
 // Bug Fix: Sync
 // Bug Fix: Bracket
 // Polish: Spacing
+// Polish: Transitions
