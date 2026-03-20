@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Day Quiz Manager | Premium</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;400;700;900&family=JetBrains+Mono:wght@300;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #ffffff;
+            --bg: #000000;
+            --accent: #27272a;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* Animated Background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
+            z-index: -1;
+            animation: grid-move 20s linear infinite;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+
+        .premium-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .premium-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-premium::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+
+        .btn-premium:hover::after {
+            left: 120%;
+        }
+
+        /* Screen Transitions */
+        .screen-fade {
+            animation: screenIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        @keyframes screenIn {
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .answer-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .answer-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            color: black;
+            transform: translateX(10px);
+        }
+
+        .correct { background: #ffffff !important; color: #000 !important; font-weight: 900; }
+        .wrong { background: #27272a !important; color: #71717a !important; border-color: transparent !important; }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.03);
+            position: absolute;
+            top: 0;
+            z-index: 100;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen selection:bg-white selection:text-black">
+    <div class="bg-grid"></div>
+    <div class="scanline"></div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 w-full p-8 flex justify-between items-center z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white flex items-center justify-center font-black text-black text-xl rotate-3">IT</div>
+            <h1 class="text-2xl font-black tracking-tighter uppercase">Quiz Manager</h1>
+        </div>
+        <div id="status-indicator" class="mono text-[0.6rem] tracking-[0.4em] font-light opacity-50">
+            SYSTEM_STATUS: <span id="current-match-display" class="font-bold opacity-100 italic">READY</span>
+        </div>
+    </header>
+
+    <main id="app-container" class="h-full w-full flex items-center justify-center px-12">
+        
+        <!-- Welcome / Registration -->
+        <div id="registration-screen" class="w-full max-w-5xl screen-fade">
+            <div class="grid grid-cols-12 gap-16">
+                <div class="col-span-5 flex flex-col justify-center space-y-6">
+                    <h2 class="text-6xl font-black tracking-tighter uppercase leading-[0.9] italic">VICTORY <br>THROUGH<br> INTELLIGENCE.</h2>
+                    <p class="text-zinc-500 text-sm max-w-[280px] font-light leading-relaxed"> Register your elite teams for the binary battleground. 10 slots available for the IT Day championship.</p>
+                    <div class="flex gap-3">
+                        <button id="btn-register" class="btn-premium bg-white text-black px-10 py-4 font-black uppercase tracking-tighter text-lg hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                            Generate Matches
+                        </button>
+                        <button id="btn-load-demo" class="border border-white/10 px-6 py-4 font-bold uppercase text-[0.7rem] tracking-widest hover:bg-white hover:text-black transition-all">
+                            Load Demo
+                        </button>
+                    </div>
+                </div>
+                <div class="col-span-7 flex items-center">
+                    <div id="team-inputs" class="grid grid-cols-2 gap-3 w-full max-h-[55vh] overflow-y-auto pr-4 custom-scrollbar">
+                        <!-- Inputs injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tournament Layout -->
+        <div id="matchups-screen" class="hidden w-full max-w-6xl screen-fade">
+             <div class="text-center mb-12">
+                <h2 class="text-[0.6rem] mono tracking-[0.6em] text-zinc-600 uppercase mb-2">Tournament Phase</h2>
+                <h3 class="text-5xl font-black tracking-tighter uppercase italic">The Bracket</h3>
+             </div>
+             <div id="matchups-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+                <!-- Cards -->
+             </div>
+             <div class="flex justify-center">
+                <button id="btn-start-quiz" class="btn-premium bg-white text-black px-16 py-6 text-2xl font-black uppercase tracking-tighter italic hover:rotate-1">
+                    Start Competition
+                </button>
+             </div>
+        </div>
+
+        <!-- Versus Screen -->
+        <div id="start-match-lobby" class="hidden w-full max-w-5xl screen-fade text-center">
+            <div class="relative py-20 flex items-center justify-center">
+                <div class="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                    <span class="text-[20rem] font-black italic tracking-tighter">BATTLE</span>
+                </div>
+                <div class="z-10 flex gap-12 items-center">
+                    <div class="text-right flex flex-col items-end">
+                        <span class="text-zinc-600 mono text-[0.6rem] mb-2 tracking-[1em]">OFFSIDER_01</span>
+                        <h4 id="current-match-t1" class="text-6xl font-black tracking-tighter uppercase italic leading-none">--</h4>
+                    </div>
+                    <div class="w-[1px] h-48 bg-white/10 relative">
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-black font-black p-3 text-xl rotate-45">VS</div>
+                    </div>
+                    <div class="text-left flex flex-col items-start">
+                        <span class="text-zinc-600 mono text-[0.6rem] mb-2 tracking-[1em]">OFFSIDER_02</span>
+                        <h4 id="current-match-t2" class="text-6xl font-black tracking-tighter uppercase italic leading-none">--</h4>
+                    </div>
+                </div>
+            </div>
+            <button id="btn-begin-battle" class="btn-premium bg-white text-black px-24 py-8 text-4xl font-black tracking-tighter uppercase italic hover:scale-105 mt-10 shadow-2xl">
+                ENGAGE
+            </button>
+        </div>
+
+        <!-- Quiz Gameplay -->
+        <div id="quiz-screen" class="hidden w-full max-w-6xl screen-fade grid grid-cols-12 gap-10">
+            <div class="col-span-4 space-y-5">
+                <div class="premium-card p-8 flex flex-col items-center">
+                    <div id="turn-indicator" class="mono text-[0.5rem] tracking-[0.5em] text-zinc-600 uppercase mb-3">Sync Phase Active</div>
+                    <h5 id="current-turn-name" class="text-2xl font-black uppercase text-center tracking-tighter">--</h5>
+                </div>
+                <!-- Score Cards -->
+                <div class="flex gap-3">
+                    <div class="flex-grow premium-card p-6 border-l-2 border-l-white">
+                        <span id="score-t1-name" class="text-[0.5rem] mono uppercase block mb-1 opacity-40">--</span>
+                        <span id="score-t1-val" class="text-4xl font-black">0</span>
+                    </div>
+                    <div class="flex-grow premium-card p-6 border-l-2 border-l-zinc-800">
+                        <span id="score-t2-name" class="text-[0.5rem] mono uppercase block mb-1 opacity-40">--</span>
+                        <span id="score-t2-val" class="text-4xl font-black text-zinc-600">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-8 flex flex-col">
+                <div class="premium-card p-12 flex-grow flex flex-col justify-center relative overflow-hidden">
+                    <!-- Timer Circle -->
+                    <div class="absolute top-0 left-0 p-8 flex items-center gap-4">
+                        <svg class="w-12 h-12 rotate-[-90deg]">
+                            <circle cx="24" cy="24" r="20" stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="transparent" />
+                            <circle id="timer-bar" cx="24" cy="24" r="20" stroke="white" stroke-width="4" fill="transparent" 
+                                stroke-dasharray="125.6" stroke-dashoffset="0" class="transition-all duration-1000 ease-linear" />
+                        </svg>
+                        <div class="flex flex-col">
+                            <span class="mono text-[0.5rem] opacity-20 uppercase">Sync Terminate</span>
+                            <span id="timer-text" class="text-xl font-bold italic mono">15s</span>
+                        </div>
+                    </div>
+
+                    <div class="absolute top-0 right-0 p-6 mono text-[0.5rem] opacity-20">DATA_SYNC_ACTIVE // 0x42</div>
+                    <h3 id="question-text" class="text-4xl font-bold tracking-tighter leading-[1.2] mb-10 mt-10 uppercase italic text-center">--</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="answer-btn text-xl font-bold p-8 text-left border border-white/5 uppercase italic" data-option="A">
+                            <span class="mono opacity-20 mr-3 text-sm">A//</span> <span id="optA">--</span>
+                        </button>
+                        <button class="answer-btn text-xl font-bold p-8 text-left border border-white/5 uppercase italic" data-option="B">
+                            <span class="mono opacity-20 mr-3 text-sm">B//</span> <span id="optB">--</span>
+                        </button>
+                        <button class="answer-btn text-xl font-bold p-8 text-left border border-white/5 uppercase italic" data-option="C">
+                            <span class="mono opacity-20 mr-3 text-sm">C//</span> <span id="optC">--</span>
+                        </button>
+                        <button class="answer-btn text-xl font-bold p-8 text-left border border-white/5 uppercase italic" data-option="D">
+                            <span class="mono opacity-20 mr-3 text-sm">D//</span> <span id="optD">--</span>
+                        </button>
+                    </div>
+                </div>
+                <button id="btn-next-turn" class="hidden btn-premium bg-white text-black w-full py-6 text-3xl font-black uppercase tracking-tighter mt-6">
+                    Next Sync
+                </button>
+            </div>
+        </div>
+
+        <!-- Results UI -->
+        <div id="results-screen" class="hidden w-full max-w-4xl screen-fade text-center">
+            <div class="p-16 relative overflow-hidden bg-white text-black">
+                <div class="z-10">
+                    <h2 class="text-lg mono tracking-[0.8em] mb-4 opacity-50">CHAMPION_IDENTIFIED</h2>
+                    <h3 id="winner-name" class="text-7xl lg:text-8xl font-black uppercase leading-none tracking-tighter italic mb-6">--</h3>
+                    <div class="text-3xl font-black mono italic opacity-40">SCORE: <span id="final-score">--</span></div>
+                </div>
+            </div>
+            <button id="btn-return-home" class="mt-10 text-zinc-600 uppercase mono text-[0.65rem] tracking-[0.5em] hover:text-white transition-all">Relink Systems</button>
+        </div>
+
+    </main>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
