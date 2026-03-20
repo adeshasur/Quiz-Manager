@@ -319,3 +319,4 @@ document.addEventListener('DOMContentLoaded', () => {
     initRegistration();
     showScreen('registration');
 });
+// Match Status Persistence
