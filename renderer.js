@@ -319,6 +319,52 @@ document.addEventListener('DOMContentLoaded', () => {
     initRegistration();
     showScreen('registration');
 });
+
+// Fit matchups screen to available viewport to avoid scrolling
+function fitMatchupsScreen() {
+    const app = document.getElementById('app-container');
+    const matchups = document.getElementById('matchups-screen');
+    if (!app || !matchups) return;
+
+    // Make sure the matchups screen is measurable (temporarily show if hidden)
+    const wasHidden = matchups.classList.contains('hidden');
+    if (wasHidden) matchups.classList.remove('hidden');
+
+    // Reset transform for natural size measurement
+    matchups.style.transform = 'none';
+    matchups.style.transformOrigin = 'top left';
+
+    const containerW = app.clientWidth;
+    // Use available height inside window minus header area (~160px) and some padding
+    const header = document.querySelector('header');
+    const headerH = header ? header.getBoundingClientRect().height : 120;
+    const availH = window.innerHeight - headerH - 40;
+
+    const contentW = matchups.scrollWidth || matchups.getBoundingClientRect().width;
+    const contentH = matchups.scrollHeight || matchups.getBoundingClientRect().height;
+
+    const scaleX = containerW / contentW;
+    const scaleY = availH / contentH;
+    // Only scale down (never scale up beyond 1)
+    const scale = Math.min(1, scaleX, scaleY);
+
+    matchups.style.transform = `scale(${scale})`;
+
+    if (wasHidden) matchups.classList.add('hidden');
+}
+
+// Re-fit on resize and after rendering matchups
+window.addEventListener('resize', () => {
+    fitMatchupsScreen();
+});
+
+// Call fit after matchups are rendered
+const originalRenderMatchups = renderMatchups;
+renderMatchups = function() {
+    originalRenderMatchups();
+    // Small timeout to allow DOM to lay out
+    setTimeout(fitMatchupsScreen, 50);
+}
 // Match Status Persistence
 // Real-time Scoring
 // Demo Data Loader
