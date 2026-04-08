@@ -125,8 +125,15 @@
 
         /* Allow scaling transforms without visual clipping */
         #registration-screen, #matchups-screen {
-            transform-origin: top left;
+            transform-origin: top center;
             will-change: transform;
+        }
+
+        /* Center matchups content for better visual balance */
+        #matchups-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
@@ -150,7 +157,7 @@
         <!-- Welcome / Registration -->
         <div id="registration-screen" class="w-full max-w-5xl screen-fade">
             <div class="grid grid-cols-12 gap-16">
-                <div class="col-span-5 flex flex-col justify-center space-y-6">
+                <div class="col-span-6 flex flex-col justify-center space-y-6">
                     <h2 class="text-6xl font-black tracking-tighter uppercase leading-[0.9] italic">VICTORY <br>THROUGH<br> INTELLIGENCE.</h2>
                     <p class="text-zinc-500 text-sm max-w-[280px] font-light leading-relaxed"> Register your elite teams for the binary battleground. 10 slots available for the IT Day championship.</p>
                     <div class="flex gap-3">
@@ -162,7 +169,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-span-7 flex items-center">
+                <div class="col-span-6 flex items-center">
                     <div id="team-inputs" class="grid grid-cols-2 gap-3 w-full">
                         <!-- Inputs injected here -->
                     </div>

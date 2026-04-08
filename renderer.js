@@ -332,7 +332,7 @@ function fitMatchupsScreen() {
 
     // Reset transform for natural size measurement
     matchups.style.transform = 'none';
-    matchups.style.transformOrigin = 'top left';
+    matchups.style.transformOrigin = 'top center';
 
     const containerW = app.clientWidth;
     // Use available height inside window minus header area (~160px) and some padding
@@ -349,6 +349,7 @@ function fitMatchupsScreen() {
     const scale = Math.min(1, scaleX, scaleY);
 
     matchups.style.transform = `scale(${scale})`;
+    // Center visually by using auto margins on the parent (matchups-screen is flex-centered)
 
     if (wasHidden) matchups.classList.add('hidden');
 }
@@ -364,30 +365,30 @@ function fitRegistrationScreen() {
     const reg = document.getElementById('registration-screen');
     if (!app || !reg) return;
 
-    const wasHidden = reg.classList.contains('hidden');
-    if (wasHidden) reg.classList.remove('hidden');
+    const wasHidden = matchups.classList.contains('hidden');
+    if (wasHidden) matchups.classList.remove('hidden');
 
-    reg.style.transform = 'none';
+    // Reset transform for natural size measurement
+    matchups.style.transform = 'none';
+    matchups.style.transformOrigin = 'top center';
 
+    const containerW = app.clientWidth;
+    // Use available height inside window minus header area and some padding
     const header = document.querySelector('header');
     const headerH = header ? header.getBoundingClientRect().height : 120;
     const availH = window.innerHeight - headerH - 40;
-    const containerW = app.clientWidth;
 
-    const contentW = reg.scrollWidth || reg.getBoundingClientRect().width;
-    const contentH = reg.scrollHeight || reg.getBoundingClientRect().height;
+    const contentW = matchups.scrollWidth || matchups.getBoundingClientRect().width;
+    const contentH = matchups.scrollHeight || matchups.getBoundingClientRect().height;
 
-    const scaleX = containerW / contentW;
-    const scaleY = availH / contentH;
+    const scaleX = contentW > 0 ? containerW / contentW : 1;
+    const scaleY = contentH > 0 ? availH / contentH : 1;
+    // Only scale down (never scale up beyond 1)
     const scale = Math.min(1, scaleX, scaleY);
 
-    reg.style.transform = `scale(${scale})`;
+    matchups.style.transform = `scale(${scale})`;
 
-    if (wasHidden) reg.classList.add('hidden');
-}
-
-// Re-fit registration on resize too
-window.addEventListener('resize', () => {
+    if (wasHidden) matchups.classList.add('hidden');
     fitRegistrationScreen();
 });
 
