@@ -358,6 +358,39 @@ window.addEventListener('resize', () => {
     fitMatchupsScreen();
 });
 
+// Fit registration screen to available viewport to avoid any scrollbars
+function fitRegistrationScreen() {
+    const app = document.getElementById('app-container');
+    const reg = document.getElementById('registration-screen');
+    if (!app || !reg) return;
+
+    const wasHidden = reg.classList.contains('hidden');
+    if (wasHidden) reg.classList.remove('hidden');
+
+    reg.style.transform = 'none';
+
+    const header = document.querySelector('header');
+    const headerH = header ? header.getBoundingClientRect().height : 120;
+    const availH = window.innerHeight - headerH - 40;
+    const containerW = app.clientWidth;
+
+    const contentW = reg.scrollWidth || reg.getBoundingClientRect().width;
+    const contentH = reg.scrollHeight || reg.getBoundingClientRect().height;
+
+    const scaleX = containerW / contentW;
+    const scaleY = availH / contentH;
+    const scale = Math.min(1, scaleX, scaleY);
+
+    reg.style.transform = `scale(${scale})`;
+
+    if (wasHidden) reg.classList.add('hidden');
+}
+
+// Re-fit registration on resize too
+window.addEventListener('resize', () => {
+    fitRegistrationScreen();
+});
+
 // Call fit after matchups are rendered
 const originalRenderMatchups = renderMatchups;
 renderMatchups = function() {

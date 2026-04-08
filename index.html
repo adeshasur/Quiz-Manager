@@ -117,6 +117,17 @@
             0% { top: 0; }
             100% { top: 100%; }
         }
+
+        /* Prevent page-level scrolling and hide scrollbars that remain */
+        main, #registration-screen, #matchups-screen {
+            overflow: hidden;
+        }
+
+        /* Allow scaling transforms without visual clipping */
+        #registration-screen, #matchups-screen {
+            transform-origin: top left;
+            will-change: transform;
+        }
     </style>
 </head>
 <body class="h-screen w-screen selection:bg-white selection:text-black">
